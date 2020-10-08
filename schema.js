@@ -10,7 +10,6 @@ const {
 } = require("graphql");
 
 //Launch Type
-//TODO add additional data later
 const LaunchType = new GraphQLObjectType({
   name: "Launch",
   fields: () => ({
@@ -24,7 +23,6 @@ const LaunchType = new GraphQLObjectType({
 });
 
 //Rocket Type
-//TODO add additional data later
 const RocketType = new GraphQLObjectType({
   name: "Rocket",
   fields: () => ({
@@ -36,17 +34,52 @@ const RocketType = new GraphQLObjectType({
 
 //Root Query
 const RootQuery = new GraphQLObjectType({
-  name: "Root Query",
+  name: "RootQueryType",
   fields: {
     launches: {
       type: new GraphQLList(LaunchType),
       resolve(parent, args) {
         return (
           axios
-            .get("https://api.spacexdata.com/v4/launches")
+            .get("https://api.spacexdata.com/v3/launches")
             //TODO look into promises and .then
             .then((res) => res.data)
         );
+      },
+    },
+    launch: {
+      type: LaunchType,
+      args: {
+        flight_number: { type: GraphQLInt },
+      },
+      resolve(parent, args) {
+        return axios
+          .get(`https://api.spacexdata.com/v3/launches/${args.flight_number}`)
+          .then((res) => res.data);
+      },
+    },
+    //For future implementation
+    rockets: {
+      type: new GraphQLList(RocketType),
+      resolve(parent, args) {
+        return (
+          axios
+            .get("https://api.spacexdata.com/v3/rockets")
+            //TODO look into promises and .then
+            .then((res) => res.data)
+        );
+      },
+    },
+    //For future implementation
+    rocket: {
+      type: RocketType,
+      args: {
+        rocket_id: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        return axios
+          .get(`https://api.spacexdata.com/v3/rockets/${args.rocket_id}`)
+          .then((res) => res.data);
       },
     },
   },
